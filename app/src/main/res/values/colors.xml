@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#B88E71</color>
+    <color name="item_color">#F3DCCC</color>
+    <color name="recycle_color">#8FB15A</color>
+    <color name="disabled_color">#B8B3AE</color>
+    <color name="disabled_color_2">#98918A</color>
+</resources>

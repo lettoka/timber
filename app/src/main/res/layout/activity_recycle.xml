@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="order"
+            type="com.example.gerenda.model.OrderModel" />
+        <variable
+            name="orderpart"
+            type="com.example.gerenda.model.OrderPartModel" />
+        <variable
+            name="loading"
+            type="com.example.gerenda.model.LoadingModel" />
+        <variable
+            name="clickable"
+            type="Boolean" />
+        <import type="android.view.View"/>
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.RecycleActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+    <TextView
+        android:id="@+id/recycle_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textStyle="bold"
+        android:text="Maradék kezelés"
+        android:textColor="@android:color/black"
+        android:textSize="40dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/recycle_onumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:text="@{order.orderNumber}"
+        tools:text="megrendelés szám"
+        app:layout_constraintEnd_toStartOf="@+id/recycle_oname"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recycle_oname" />
+
+    <TextView
+        android:id="@+id/recycle_oname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:text="@{order.ordererName}"
+        tools:text="megrendelő neve"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycle_title" />
+
+    <TextView
+        android:id="@+id/recycle_odeadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:text="@{order.deadline}"
+        tools:text="határidő"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/recycle_oname"
+        app:layout_constraintTop_toTopOf="@+id/recycle_oname" />
+    <TextView
+        android:id="@+id/recycle_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="100dp"
+        android:gravity="center"
+        android:text="Megnevezés"
+        android:textColor="@android:color/black"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/rguideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycle_oname" />
+
+    <TextView
+        android:id="@+id/recycle_calculated"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Számított maradék"
+        android:textColor="@android:color/black"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/recycle_name"
+        app:layout_constraintEnd_toStartOf="@+id/rguideline2"
+        app:layout_constraintStart_toStartOf="@+id/rguideline"
+        app:layout_constraintTop_toTopOf="@+id/recycle_name" />
+
+    <TextView
+        android:id="@+id/recycle_real"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Tényleges maradék"
+        android:textColor="@android:color/black"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/recycle_calculated"
+        app:layout_constraintEnd_toStartOf="@+id/rguideline3"
+        app:layout_constraintStart_toStartOf="@+id/rguideline2" />
+
+    <TextView
+        android:id="@+id/recycle_damaged"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:text="Sérült"
+        android:textColor="@android:color/black"
+        android:textSize="22dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/recycle_real"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/rguideline3"
+        app:layout_constraintTop_toTopOf="@+id/recycle_real" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rguideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="180dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rguideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="340dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/rguideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="500dp" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/recycle_swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        android:layout_marginBottom="80dp"
+        app:layout_constraintBottom_toTopOf="@+id/recycle_button_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycle_calculated">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycle_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <Button
+        android:id="@+id/recycle_button_back"
+        android:layout_width="160dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/button_back"
+        android:text="Vissza"
+        android:textSize="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <Button
+        android:id="@+id/recycle_done_button"
+        android:layout_width="260dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="40dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_submit"
+        android:gravity="right|center_vertical"
+        android:visibility="@{clickable? View.VISIBLE : View.GONE}"
+        android:paddingRight="40dp"
+        android:text="Véglegesítés"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/goto_odetail_button"
+        android:layout_width="260dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="40dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_submit"
+        android:gravity="center"
+        android:visibility="@{clickable? View.GONE : View.VISIBLE }"
+        tools:visibility="gone"
+        android:text="Vágások"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:elevation="10dp"
+        android:fontFamily="@font/font_awesome"
+        android:text=""
+        android:textColor="@color/recycle_color"
+        android:textSize="38dp"
+        android:visibility="@{clickable? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="@+id/recycle_done_button"
+        app:layout_constraintStart_toStartOf="@+id/recycle_done_button"
+        app:layout_constraintTop_toTopOf="@+id/recycle_done_button" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80C5C5C5"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="@{loading.loading? View.VISIBLE : View.GONE}"
+        app:layout_constraintBottom_toBottomOf="@id/recycle_swipe_refresh"
+        app:layout_constraintEnd_toEndOf="@+id/recycle_swipe_refresh"
+        app:layout_constraintStart_toStartOf="@+id/recycle_swipe_refresh"
+        app:layout_constraintTop_toTopOf="@id/recycle_swipe_refresh">
+
+        <ProgressBar
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/recycle_orderpart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@{orderpart.type}"
+        android:textColor="@android:color/black"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/recycle_calculated"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycle_oname" />
+
+    <Button
+        android:id="@+id/recycle_calculated_button"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/button_swap"
+        android:fontFamily="@font/font_awesome"
+        android:visibility="@{clickable? View.VISIBLE : View.GONE}"
+        android:text=""
+        android:textSize="26dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycle_swipe_refresh" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

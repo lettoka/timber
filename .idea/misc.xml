@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.27291666666666664" />
+        <entry key="app/src/main/res/drawable/button_back.xml" value="0.20859375" />
+        <entry key="app/src/main/res/drawable/button_bottom.xml" value="0.4109375" />
+        <entry key="app/src/main/res/drawable/button_middle.xml" value="0.4109375" />
+        <entry key="app/src/main/res/drawable/button_submit.xml" value="0.12890625" />
+        <entry key="app/src/main/res/drawable/button_swap.xml" value="0.4109375" />
+        <entry key="app/src/main/res/drawable/button_top.xml" value="0.20859375" />
+        <entry key="app/src/main/res/drawable/item_background.xml" value="0.3890625" />
+        <entry key="app/src/main/res/drawable/item_background_light.xml" value="0.3890625" />
+        <entry key="app/src/main/res/drawable/rounded_corner_bg.xml" value="0.20859375" />
+        <entry key="app/src/main/res/drawable/table_header_button.xml" value="0.209375" />
+        <entry key="app/src/main/res/layout/activity_loading.xml" value="0.30663615560640733" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.184375" />
+        <entry key="app/src/main/res/layout/activity_order.xml" value="0.3847402597402597" />
+        <entry key="app/src/main/res/layout/activity_order_detail.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_order_menu.xml" value="0.18515625" />
+        <entry key="app/src/main/res/layout/activity_order_part.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_recycle.xml" value="0.23410404624277456" />
+        <entry key="app/src/main/res/layout/activity_stock.xml" value="0.184375" />
+        <entry key="app/src/main/res/layout/activity_stock_detail.xml" value="0.1862864077669903" />
+        <entry key="app/src/main/res/layout/credentials_popup.xml" value="0.22594142259414227" />
+        <entry key="app/src/main/res/layout/order_detail_item.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/order_item.xml" value="0.135" />
+        <entry key="app/src/main/res/layout/order_part_item.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/popup_cut_details.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/popup_cutdone.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/popup_recycledone.xml" value="0.3416856492027335" />
+        <entry key="app/src/main/res/layout/rest_item.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/stock_detail_item.xml" value="0.15125" />
+        <entry key="app/src/main/res/layout/stock_item.xml" value="0.1929611650485437" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.12890625" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.12890625" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

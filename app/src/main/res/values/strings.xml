@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">KORPUS TimberApp</string>
+    <string name="cutdone_warning_body">Biztosan kész a(z) %s al-termékcsoport vágása?</string>
+    <string name="recycledone_warning_body">Biztosan kész a(z) %s al-termékcsoport maradékkezelése?</string>
+</resources>

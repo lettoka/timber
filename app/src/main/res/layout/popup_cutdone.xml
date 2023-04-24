@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="orderpart"
+            type="com.example.gerenda.model.OrderPartModel" />
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="600dp"
+     android:background="@drawable/rounded_corner_bg"
+     android:orientation="vertical">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animationView"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_speed="1.4"
+        app:lottie_loop="false"
+        app:lottie_rawRes="@raw/cut_anim" />
+
+    <Button
+        android:id="@+id/cutdone_submit"
+        android:layout_width="120dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="92dp"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/button_submit"
+        android:elevation="6dp"
+        android:text="Kész"
+        android:textColor="@android:color/white"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cutdone_body" />
+
+    <Button
+        android:id="@+id/cutdone_cancel"
+        android:layout_width="120dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="80dp"
+        android:background="@drawable/button_back"
+        android:elevation="6dp"
+        android:text="Mégsem"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="22dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cutdone_submit"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/cutdone_body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="40dp"
+
+        android:gravity="center"
+        android:text="@{@string/cutdone_warning_body(orderpart.type)}"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vágás kész"
+        android:textColor="@android:color/black"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/animationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
