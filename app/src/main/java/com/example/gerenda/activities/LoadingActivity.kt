@@ -27,7 +27,7 @@ class LoadingActivity : DatabaseActivity() {
         gotoMain()
     }
     fun gotoMain() {
-        val intent = Intent(this,MainActivity::class.java)
+        val intent = Intent(this,StartActivity::class.java)
         startActivity(intent)
     }
 }

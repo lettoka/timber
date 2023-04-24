@@ -31,7 +31,7 @@ object KotlinDatabase {
     }
 
 
-    fun <T> executeRawQuery(dt: DatabaseTransformable<T>, q:String, onSuccess : ((List<T>)->Unit)) {
+    fun <T> executeRawQuery(dt: DatabaseTransformable<T>, q:String,onError:((Exception)->Unit)? = null,onSuccess : ((List<T>)->Unit)) {
         val conn = getConnection() ?: return
         try {
             val st: Statement = conn.createStatement()
@@ -45,9 +45,11 @@ object KotlinDatabase {
         } catch (ex: SQLException) {
             // handle any errors
             ex.printStackTrace()
+            onError?.invoke(ex)
         } catch (ex: Exception) {
             // handle any errors
             ex.printStackTrace()
+            onError?.invoke(ex)
         }
         finally {
             conn.close()
