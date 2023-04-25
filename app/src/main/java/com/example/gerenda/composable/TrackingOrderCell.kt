@@ -2,6 +2,9 @@ package com.example.gerenda.composable
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,7 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,7 +51,7 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
             items.value = listOf()
         }else{
             loadingState.value = LoadingState.LOADING
-            viewModel.loadItems(order.trackingID, onError = {
+            viewModel.loadItems(order.id, onError = {
                 items.value = listOf()
                 isOpen.value = false
             }, onSuccess = {
@@ -59,13 +66,14 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
         .clip(RoundedCornerShape(10.dp))
         .background(Color.White)
         .fillMaxWidth()
+        .wrapContentHeight()
         .padding(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expandClicked() }
         ) {
-            Text(order.id, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+            Text(order.id, fontSize = 36.sp, fontWeight = FontWeight.Bold)
             Icon(
                 Icons.Rounded.ArrowRight,
                 contentDescription = "user",
@@ -75,17 +83,40 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
 
             )
         }
-        AnimatedVisibility(visible = isOpen.value) {
+        AnimatedVisibility(visible = isOpen.value,
+            enter = expandVertically(animationSpec = tween(1000)) + fadeIn(
+                animationSpec = tween(
+                    500
+                )
+            ),
+
+        ) {
             Box(contentAlignment = Alignment.Center) {
                 Column() {
                     
+                //items.value.groupingBy { it.processName }
+                    items.value.groupBy { it.processName }.forEach{group ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
+                            Text(text = group.key, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                            Text(text = String.format("%.1f m³",group.value.sumOf { it.amount }),fontSize = 20.sp)
+                        }
 
-                items.value.forEach{
-                    Row(){
-                        Text(text = it.processName)
-                        Text(text = String.format("%.1f ",it.amount))
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+
+                        group.value.forEach{
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                                //Text(text = it.processName)
+                                Text(it.productName, fontSize = 18.sp)
+                                Text(text = String.format("%.1f m³",it.amount),fontSize = 18.sp)
+
+                            }
+                        }
+                        }
                     }
-                }
+
+
                 }
             if (loadingState.value == LoadingState.LOADING) {
                 CircularProgressIndicator()

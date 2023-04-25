@@ -17,9 +17,9 @@ enum class LoadingState{
 
 class TrackingOrderViewModel : ViewModel(){
 
-    fun loadItems(trackingID:Int,onSuccess: (List<TrackingItem>)->Unit,onError:()->Unit){
+    fun loadItems(orderID:String,onSuccess: (List<TrackingItem>)->Unit,onError:()->Unit){
         viewModelScope.launch(Dispatchers.IO) {
-            KotlinDatabase.executeRawQuery(TrackingItem,TrackingItem.getQuery(trackingID), onError = {
+            KotlinDatabase.executeRawQuery(TrackingItem,TrackingItem.getQuery(orderID), onError = {
                 onError()
             }, onSuccess = {
                 viewModelScope.launch(Dispatchers.Main) {
