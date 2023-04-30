@@ -31,8 +31,9 @@ object KotlinDatabase {
     }
 
 
-    fun <T> executeRawQuery(dt: DatabaseTransformable<T>, q:String,onError:((Exception)->Unit)? = null,onSuccess : ((List<T>)->Unit)) {
-        val conn = getConnection() ?: return
+    fun <T> executeRawQuery(dt: DatabaseTransformable<T>, q:String,mustReturnOneRow : Boolean = false,onError:((Exception)->Unit)? = null,onSuccess : ((List<T>)->Unit)) {
+        val conn = getConnection()
+        if (conn == null) { onError?.invoke(Exception("Sikertelen csatlakozás"));return}
         try {
             val st: Statement = conn.createStatement()
             val rs = st.executeQuery(q)
@@ -41,6 +42,7 @@ object KotlinDatabase {
                // println("lekerdezett:  ${rs.getString("name")}")
                 list.add(dt.TransformData(rs))
             }
+            if (mustReturnOneRow && list.isEmpty()){onError?.invoke(Exception("Üres lista")) }
             onSuccess(list)
         } catch (ex: SQLException) {
             // handle any errors

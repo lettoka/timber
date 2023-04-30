@@ -15,10 +15,14 @@ data class ProductionTrackingOrder(
 
             }
 
-        fun getQuery() : String{
+        fun getQuery(userID : Int) : String{
+//            return """
+//                 select "ara_szam","uzemi_kod" from "arajanl_f" where "uzemi_kod" IS NOT NULL
+//            """
             return """
-                 select "ara_szam","uzemi_kod" from "arajanl_f" where "uzemi_kod" IS NOT NULL
-            """
+            select "arajanl_f"."ara_szam","arajanl_f"."uzemi_kod" from "arajanl_f"
+            where ("arajanl_f"."uzemi_kod" IS NOT NULL AND (SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi" LEFT OUTER JOIN "uzemi_jog" on "uzemi"."ter_kod" = "uzemi_jog"."ter_kod"  where "uzemi_jog"."jel_kod" = $userID AND "uzemi"."uzemi_kod"  = "arajanl_f"."uzemi_kod"   )  IS NOT NULL)
+        """
         }
 
     }

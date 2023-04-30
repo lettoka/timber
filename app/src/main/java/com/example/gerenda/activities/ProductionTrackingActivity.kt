@@ -27,7 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gerenda.composable.LoginCard
 import com.example.gerenda.composable.TrackingOrderCell
+import com.example.gerenda.extension.dpToSp
 import com.example.gerenda.viewmodel.ProductionTrackingViewModel
 
 class ProductionTrackingActivity : AppCompatActivity() {
@@ -41,20 +43,31 @@ class ProductionTrackingActivity : AppCompatActivity() {
 
 @Composable
 fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
-    Box(modifier = Modifier
+    Box(contentAlignment = Alignment.Center,modifier = Modifier
         .background(Color(0xFFF3DCCC))
         .fillMaxSize()) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.fillMaxSize()) {
        ProductTrackingHeader()
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp),modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp),modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 10.dp)) {
             viewModel.orders.value.forEach{
                 TrackingOrderCell(order = it)
             }
         }
 
     }
+        if (viewModel.loginShown.value){
+            LoginCard()
+
+        }
         if (viewModel.isLoading.value){
-        CircularProgressIndicator()
+            Box(contentAlignment = Alignment.Center, modifier = Modifier
+                .background(Color.White)
+                .fillMaxSize()) {
+                CircularProgressIndicator()
+            }
+
         }
     }
 }
@@ -76,7 +89,7 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
                     modifier = Modifier.size(40.dp)
                 )
 
-                Text(text = user.displayName,fontSize = 20.sp)
+                Text(text = user.displayName,fontSize = dpToSp(dp = 30.dp))
 
 
                     Icon(
@@ -93,14 +106,14 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
             }
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.verticalScroll(rememberScrollState())) {
                 user.roles.forEach {
-                    Text(text = it.name)
+                    Text(text = it.name, fontSize = dpToSp(dp = 26.dp))
                 }
             }
 
         }
         if (viewModel.user.value == null) {
             Text(text = "Jelentkezzen be a folytatáshoz", fontSize = 20.sp)
-            Button(onClick = { viewModel.reloadUser() }, modifier = Modifier.padding(top = 10.dp)) {
+            Button(onClick = { viewModel.loginShown.value = true }, modifier = Modifier.padding(top = 10.dp)) {
                 Text("Bejelentkezés")
             }
         }

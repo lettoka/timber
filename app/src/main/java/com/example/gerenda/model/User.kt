@@ -24,12 +24,12 @@ data class UserRoleResponse(
 
         }
 
-        fun getQuery():String{
+        fun getQuery(username:String,password:String):String{
             return """
                  select "termek"."ter_kod","termek"."ter_nev","jelszo"."jel_kod","jelszo"."felhaszn","jelszo"."nev","uzemi_jog"."uzemi_j" from "jelszo"
 LEFT OUTER JOIN "uzemi_jog" on "uzemi_jog"."jel_kod" = "jelszo"."jel_kod"
 LEFT JOIN "termek" ON ("ter_uzemi" = 'I' AND "uzemi_jog"."ter_kod" = "termek"."ter_kod")
-WHERE "jelszo"."felhaszn" = 'ANCSI'
+WHERE "jelszo"."felhaszn" = '$username' AND "jelszo"."jelszo_md5" = '$password'
             """
         }
 

@@ -32,13 +32,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gerenda.extension.dpToSp
 import com.example.gerenda.model.ProductionTrackingOrder
 import com.example.gerenda.model.TrackingItem
 import com.example.gerenda.viewmodel.LoadingState
+import com.example.gerenda.viewmodel.ProductionTrackingViewModel
 import com.example.gerenda.viewmodel.TrackingOrderViewModel
 
 @Composable
-fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderViewModel = androidx.lifecycle.viewmodel.compose.viewModel()){
+fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderViewModel = viewModel(),pageViewModel : ProductionTrackingViewModel = viewModel()){
     val isOpen = remember { mutableStateOf(false) }
     val items = remember{ mutableStateOf<List<TrackingItem>>(listOf()) }
     val loadingState = remember{ mutableStateOf(LoadingState.IDLE) }
@@ -51,13 +53,16 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
             items.value = listOf()
         }else{
             loadingState.value = LoadingState.LOADING
-            viewModel.loadItems(order.id, onError = {
-                items.value = listOf()
-                isOpen.value = false
-            }, onSuccess = {
-                items.value = it
-                loadingState.value = LoadingState.LOADED
-            })
+            pageViewModel.user.value?.id?.let {userID ->
+                viewModel.loadItems(order.id,userID, onError = {
+                    items.value = listOf()
+                    isOpen.value = false
+                    loadingState.value = LoadingState.IDLE
+                }, onSuccess = {
+                    items.value = it
+                    loadingState.value = LoadingState.LOADED
+                })
+            }
         }
         isOpen.value = !isOpen.value
     }
@@ -97,20 +102,39 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
                 //items.value.groupingBy { it.processName }
                     items.value.groupBy { it.processName }.forEach{group ->
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text(text = group.key, fontSize = 30.sp, fontWeight = FontWeight.Bold)
-                            Text(text = String.format("%.1f m³",group.value.sumOf { it.amount }),fontSize = 20.sp)
+                            Text(text = group.key, fontSize = dpToSp(dp = 26.dp), fontWeight = FontWeight.Bold)
+                            Text(text = String.format("%.1f m³",group.value.sumOf { it.amount }),fontSize = dpToSp(
+                                dp = 20.dp
+                            ))
                         }
 
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
 
-                        group.value.forEach{
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
-                                //Text(text = it.processName)
-                                Text(it.productName, fontSize = 18.sp)
-                                Text(text = String.format("%.1f m³",it.amount),fontSize = 18.sp)
+                        group.value.forEach {
+                            Row(verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    //Text(text = it.processName)
+                                    Text(it.productName, fontSize = dpToSp(dp = 20.dp))
+                                    Text(
+                                        text = String.format("%.1f m³", it.amount),
+                                        fontSize = dpToSp(dp = 20.dp)
+                                    )
 
+
+                                }
+                                DoneButton(isDone = it.isDone, onClick = {onDone->
+                                    if (pageViewModel.user.value?.id == null){onDone();return@DoneButton }
+                                    pageViewModel.user.value?.id?.let { userID ->
+                                        viewModel.doneItem(order.id,userID,it, onSuccess = { newItems ->
+                                            items.value = newItems
+                                            onDone()
+                                        }, onError = {
+                                            onDone()
+                                        })
+                                    }
+                                })
                             }
                         }
                         }
