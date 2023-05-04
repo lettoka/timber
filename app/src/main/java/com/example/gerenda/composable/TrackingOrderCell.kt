@@ -79,6 +79,7 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
                 .clickable { expandClicked() }
         ) {
             Text(order.id, fontSize = 36.sp, fontWeight = FontWeight.Bold)
+            Text(text = order.ordererName, fontSize = dpToSp(dp = 20.dp))
             Icon(
                 Icons.Rounded.ArrowRight,
                 contentDescription = "user",
@@ -156,5 +157,5 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
 @Preview
 @Composable
 fun TrackingOrderCellPreview(){
-    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1))
+    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1,"nev"))
 }

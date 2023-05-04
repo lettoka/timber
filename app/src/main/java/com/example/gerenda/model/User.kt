@@ -33,6 +33,15 @@ WHERE "jelszo"."felhaszn" = '$username' AND "jelszo"."jelszo_md5" = '$password'
             """
         }
 
+        fun getReloadQuery(userID: Int) : String{
+            return """
+                 select "termek"."ter_kod","termek"."ter_nev","jelszo"."jel_kod","jelszo"."felhaszn","jelszo"."nev","uzemi_jog"."uzemi_j" from "jelszo"
+LEFT OUTER JOIN "uzemi_jog" on "uzemi_jog"."jel_kod" = "jelszo"."jel_kod"
+LEFT JOIN "termek" ON ("ter_uzemi" = 'I' AND "uzemi_jog"."ter_kod" = "termek"."ter_kod")
+WHERE "jelszo"."jel_kod" = $userID
+            """
+        }
+
     }
 }
 

@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Logout
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -41,11 +45,18 @@ class ProductionTrackingActivity : AppCompatActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
+    val pullRefreshState =
+        rememberPullRefreshState(viewModel.isPullRefreshing, { viewModel.pullRefresh() })
+
     Box(contentAlignment = Alignment.Center,modifier = Modifier
+
+        .fillMaxSize()
         .background(Color(0xFFF3DCCC))
-        .fillMaxSize()) {
+        .pullRefresh(pullRefreshState)
+    ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.fillMaxSize()) {
        ProductTrackingHeader()
         Column(verticalArrangement = Arrangement.spacedBy(10.dp),modifier = Modifier
@@ -61,9 +72,11 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
             LoginCard()
 
         }
-        if (viewModel.isLoading.value){
+
+        PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+        if (viewModel.isPullRefreshing){
             Box(contentAlignment = Alignment.Center, modifier = Modifier
-                .background(Color.White)
+                .background(Color.White.copy(alpha = 0.2f))
                 .fillMaxSize()) {
                 CircularProgressIndicator()
             }
