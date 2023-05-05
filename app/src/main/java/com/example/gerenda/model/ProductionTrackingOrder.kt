@@ -12,7 +12,8 @@ data class ProductionTrackingOrder(
 ){
     companion object: DatabaseTransformable<ProductionTrackingOrder> {
             override fun  TransformData(set: ResultSet):ProductionTrackingOrder{
-                return ProductionTrackingOrder(set.getString("ara_szam"),set.getInt("uzemi_kod"),set.getString("vevo_rnev"))
+                return ProductionTrackingOrder(set.getString("ara_szam"),set.getInt("uzemi_kod"),
+                    kotlin.runCatching {   set.getString("vevo_rnev")}.getOrNull() ?: "")
 
             }
 
@@ -22,12 +23,13 @@ data class ProductionTrackingOrder(
 //            """
             return """
             
- select "arajanl_f"."ara_szam","arajanl_f"."uzemi_kod","vevok"."vevo_rnev" from "arajanl_f"
+
+ select "arajanl_f"."ara_szam","arajanl_f"."uzemi_kod","vevok"."vevo_rnev"
+ from "arajanl_f"
  LEFT OUTER JOIN "vevok" on "arajanl_f"."vevo_kod" = "vevok"."vevo_kod"
- 
 where
-("arajanl_f"."uzemi_kod" IS NOT NULL AND
-(SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi" LEFT OUTER JOIN "uzemi_jog" on "uzemi"."ter_kod" = "uzemi_jog"."ter_kod"  where "uzemi_jog"."jel_kod" = $userID AND "uzemi"."uzemi_kod"  = "arajanl_f"."uzemi_kod"   )  IS NOT NULL)
+("arajanl_f"."uzemi_kod" IS NOT NULL
+AND (SELECT COUNT(*) from "uzemi" LEFT OUTER JOIN "uzemi_jog" on "uzemi"."ter_kod" = "uzemi_jog"."ter_kod"  where "uzemi_jog"."jel_kod" = $userID AND "uzemi"."uzemi_kod"  = "arajanl_f"."uzemi_kod" AND "uzemi_jog"."uzemi_j" > 1  )   > 0)
         """
         }
 

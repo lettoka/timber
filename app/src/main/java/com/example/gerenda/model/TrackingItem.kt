@@ -45,7 +45,7 @@ LEFT OUTER JOIN "termek" "folyamat" on "uzemi"."ter_kod" = "folyamat"."ter_kod"
 LEFT OUTER JOIN "arajanl_t" on ("arajanl_f"."ara_szam" = "arajanl_t"."ara_szam" AND "uzemi"."uzemi_sorsz" = "arajanl_t"."uzemi_sorsz" )
 LEFT OUTER JOIN "termek" as "anyag" on ("arajanl_t"."ter_kod" = "anyag"."ter_kod")
 where    ("arajanl_f"."ara_szam" = '$orderID'
-AND ((SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi_jog" where "jel_kod" = $userID AND "uzemi_jog"."ter_kod" = "uzemi"."ter_kod") IS NOT NULL))
+AND ((SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi_jog" where "jel_kod" = $userID AND "uzemi_jog"."ter_kod" = "uzemi"."ter_kod") > 1))
           """
       }
   }

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -95,6 +96,7 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
                     500
                 )
             ),
+            exit = shrinkVertically(animationSpec = tween(1000))
 
         ) {
             Box(contentAlignment = Alignment.Center) {
