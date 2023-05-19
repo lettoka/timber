@@ -16,13 +16,51 @@ import kotlinx.coroutines.*
 class ProductionTrackingViewModel : ViewModel() {
     val user = mutableStateOf<User?>(null)
     val orders = mutableStateOf<List<ProductionTrackingOrder>>(listOf())
+    val processes = mutableStateOf<List<ProductProcess>>(listOf())
+    val selecteProcess = mutableStateOf<ProductProcess?>(null)
    // val isLoading = mutableStateOf(false)
     var isPullRefreshing by mutableStateOf(false)
     val loginShown = mutableStateOf(false)
+    var dropDownExpanded = mutableStateOf(false)
+    var isDropDownRefreshing by mutableStateOf(false)
+
 
     fun logout(){
         user.value = null
         orders.value = listOf()
+    }
+
+
+    fun loadProcesses(){
+        isDropDownRefreshing = true
+        processes.value = listOf()
+        viewModelScope.launch(Dispatchers.IO) {
+
+            KotlinDatabase.executeRawQuery<ProductProcess>(
+                ProductProcess,
+                ProductProcess.getListQuery(), mustReturnOneRow = true
+                , onSuccess =  { list ->
+                    viewModelScope.launch(Dispatchers.Main) {
+                        processes.value = list
+                        dropDownExpanded.value = true
+                        isDropDownRefreshing = false
+                    }
+
+                }, onError = {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        // isLoading.value = false
+                        loginShown.value = true
+                        isDropDownRefreshing = false
+                    }
+                })
+
+        }
+    }
+
+    fun selectProcess(process: ProductProcess){
+        selecteProcess.value = process
+        dropDownExpanded.value = false
+        loadOrdersForProcess(processID = process.id)
     }
 
     fun login(username:String,password:String){
@@ -105,6 +143,33 @@ class ProductionTrackingViewModel : ViewModel() {
 //
 //        }
 //    }
+
+    fun loadOrdersForProcess(processID : Int){
+        orders.value = listOf()
+        // isLoading.value = true
+        isPullRefreshing = true
+
+            viewModelScope.launch(Dispatchers.IO) {
+
+                KotlinDatabase.executeRawQuery<ProductionTrackingOrder>(
+                    ProductionTrackingOrder,
+                    ProductionTrackingOrder.getListForProcess(processID), onSuccess = { list ->
+                        viewModelScope.launch(Dispatchers.Main) {
+
+                            orders.value = list
+                            //isLoading.value = false
+                            isPullRefreshing = false
+                        }
+                    }, onError = {
+                        viewModelScope.launch(Dispatchers.Main) {
+                            // isLoading.value = false
+                            isPullRefreshing = false
+                        }
+                    })
+
+            }
+
+    }
 
     fun loadOrders(){
         if (user.value == null){ orders.value = listOf() ;return}

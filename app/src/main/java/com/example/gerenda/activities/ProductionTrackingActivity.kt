@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Logout
@@ -18,21 +19,20 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gerenda.composable.LoginCard
 import com.example.gerenda.composable.TrackingOrderCell
+import com.example.gerenda.extension.TimberBrown
 import com.example.gerenda.extension.dpToSp
 import com.example.gerenda.viewmodel.ProductionTrackingViewModel
 
@@ -73,7 +73,7 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
 
         }
 
-        PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+        //PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         if (viewModel.isPullRefreshing){
             Box(contentAlignment = Alignment.Center, modifier = Modifier
                 .background(Color.White.copy(alpha = 0.2f))
@@ -93,45 +93,101 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
             .background(Color.White)
             .fillMaxWidth()
             .padding(20.dp)) {
-        viewModel.user.value?.let { user ->
-            Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier.fillMaxWidth()) {
-                Icon(
-                    Icons.Rounded.AccountCircle,
-
-                    contentDescription = "user",
-                    modifier = Modifier.size(40.dp)
-                )
-
-                Text(text = user.displayName,fontSize = dpToSp(dp = 30.dp))
-
-
-                    Icon(
-                        Icons.Rounded.Close,
-                        tint = Color.Red,
+        Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {
+                viewModel.dropDownExpanded.value = true;viewModel.loadProcesses()
+            })
+            .background(
+                Color.TimberBrown.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(all = 10.dp)
+        ){
+            Text(viewModel.selecteProcess.value?.name ?: "Válasszon üzemi folyamatot",fontSize = dpToSp(dp = 30.dp))
+                                Icon(
+                        Icons.Filled.ArrowDropDown,
+                        tint = Color.Black,
                         contentDescription = "user",
                         modifier = Modifier
                             .size(40.dp)
                             .clickable { viewModel.logout() }
                     )
+        }
 
+        DropdownMenu(
+            expanded = viewModel.dropDownExpanded.value,
+            onDismissRequest = { viewModel.dropDownExpanded.value = false;viewModel.processes.value = listOf() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Color.White
+                )
+                .shadow(10.dp)
+                .padding(all = 10.dp)
+                .clip(RoundedCornerShape(10.dp))
 
-
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.verticalScroll(rememberScrollState())) {
-                user.roles.forEach {
-                    Text(text = it.name, fontSize = dpToSp(dp = 26.dp))
+        ) {
+            if (viewModel.isDropDownRefreshing){
+                Box( contentAlignment = Alignment.Center,modifier = Modifier
+                    .background(Color.White)
+                    .height(80.dp)
+                    .fillMaxWidth()
+                    .padding(all = 20.dp)){
+                    CircularProgressIndicator()
                 }
             }
+            viewModel.processes.value.forEach { process ->
+                DropdownMenuItem(onClick = {
+                    viewModel.selectProcess(process)
+                }, text = {
 
-        }
-        if (viewModel.user.value == null) {
-            Text(text = "Jelentkezzen be a folytatáshoz", fontSize = 20.sp)
-            Button(onClick = { viewModel.loginShown.value = true }, modifier = Modifier.padding(top = 10.dp)) {
-                Text("Bejelentkezés")
+                    Text(text = process.name,fontSize = dpToSp(dp = 30.dp))
+                })
             }
         }
+//        viewModel.user.value?.let { user ->
+//            Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier.fillMaxWidth()) {
+//                Icon(
+//                    Icons.Rounded.AccountCircle,
+//
+//                    contentDescription = "user",
+//                    modifier = Modifier.size(40.dp)
+//                )
+//
+//                Text(text = user.displayName,fontSize = dpToSp(dp = 30.dp))
+//
+//
+//                    Icon(
+//                        Icons.Rounded.Close,
+//                        tint = Color.Red,
+//                        contentDescription = "user",
+//                        modifier = Modifier
+//                            .size(40.dp)
+//                            .clickable { viewModel.logout() }
+//                    )
+//
+//
+//
+//            }
+//            Row(horizontalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.verticalScroll(rememberScrollState())) {
+//                user.roles.forEach {
+//                    Text(text = it.name, fontSize = dpToSp(dp = 26.dp))
+//                }
+//            }
+//
+//        }
+//        if (viewModel.user.value == null) {
+//            Text(text = "Jelentkezzen be a folytatáshoz", fontSize = 20.sp)
+//            Button(onClick = { viewModel.loginShown.value = true }, modifier = Modifier.padding(top = 10.dp)) {
+//                Text("Bejelentkezés")
+//            }
+//        }
     }
 }
+
+
+
 
 @Preview
 @Composable

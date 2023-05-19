@@ -29,6 +29,8 @@ data class TrackingItem(
             UPDATE "uzemi" SET "uzemi_kesz" = 'I' WHERE "uzemi_kod" = ${item.trackingID} AND "uzemi_sorsz" = ${item.trackingNumber} AND "ter_kod" = ${item.processID}
         """
       }
+
+
       fun getQuery(orderID : String,userID:Int) : String{
 //         return """
 //

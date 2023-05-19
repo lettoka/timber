@@ -17,6 +17,16 @@ data class ProductionTrackingOrder(
 
             }
 
+        fun getListForProcess(processID: Int): String{
+            return  """
+                select "arajanl_f"."ara_szam","arajanl_f"."uzemi_kod","vevok"."vevo_rnev"
+ from "arajanl_f"
+ LEFT OUTER JOIN "vevok" on "arajanl_f"."vevo_kod" = "vevok"."vevo_kod" --be kell majd joinolni ay uzemi_f-et es szurni h indult
+where
+("arajanl_f"."uzemi_kod" IS NOT NULL
+AND (SELECT COUNT(*) from "uzemi"   where "uzemi"."ter_kod"  = $processID AND "uzemi"."uzemi_kod" = "arajanl_f"."uzemi_kod"  )   > 0)
+            """
+        }
         fun getQuery(userID : Int) : String{
 //            return """
 //                 select "ara_szam","uzemi_kod" from "arajanl_f" where "uzemi_kod" IS NOT NULL

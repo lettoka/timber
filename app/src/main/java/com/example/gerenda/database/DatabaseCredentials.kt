@@ -18,7 +18,7 @@ object DatabaseCredentials:BaseObservable() {
 
     var  username:String
     // get() =  prefs.getString(USERNAME_KEY,"") ?: ""
-    get() = "ANCSI"//"SYSDBA"//"ANCSI"
+    get() = "SYSDBA"//"SYSDBA"//"ANCSI"
     set(value) {
         with(prefs.edit()){
             putString(USERNAME_KEY,value)
@@ -27,7 +27,7 @@ object DatabaseCredentials:BaseObservable() {
     }
     var password:String
     //get() =  prefs.getString(PASSWORD_KEY,"") ?: ""
-    get() =  "afaf"//"masterkey"//"afaf"
+    get() =  "masterkey"//"masterkey"//"afaf"
     set(value) {
         with(prefs.edit()){
             putString(PASSWORD_KEY,value)
