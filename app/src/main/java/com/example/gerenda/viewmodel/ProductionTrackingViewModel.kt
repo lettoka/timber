@@ -5,16 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gerenda.adapter.OrderAdapter
 import com.example.gerenda.database.KotlinDatabase
 import com.example.gerenda.extension.md5
 import com.example.gerenda.model.*
+import com.example.gerenda.model.ProcessTracking.ProductionTrackingOrder
 import com.example.gerenda.model.userData
-import kotlinx.android.synthetic.main.activity_order.*
 import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ProductionTrackingViewModel : ViewModel() {
-    val user = mutableStateOf<User?>(null)
+    val user = mutableStateOf<UserWithRoles?>(null)
     val orders = mutableStateOf<List<ProductionTrackingOrder>>(listOf())
     val processes = mutableStateOf<List<ProductProcess>>(listOf())
     val selecteProcess = mutableStateOf<ProductProcess?>(null)
@@ -23,6 +24,7 @@ class ProductionTrackingViewModel : ViewModel() {
     val loginShown = mutableStateOf(false)
     var dropDownExpanded = mutableStateOf(false)
     var isDropDownRefreshing by mutableStateOf(false)
+    var onGotPassword by mutableStateOf<((String?)->Unit)?>(null)
 
 
     fun logout(){
@@ -49,7 +51,8 @@ class ProductionTrackingViewModel : ViewModel() {
                 }, onError = {
                     viewModelScope.launch(Dispatchers.Main) {
                         // isLoading.value = false
-                        loginShown.value = true
+                        //loginShown.value = true
+                        dropDownExpanded.value = false
                         isDropDownRefreshing = false
                     }
                 })
@@ -61,6 +64,15 @@ class ProductionTrackingViewModel : ViewModel() {
         selecteProcess.value = process
         dropDownExpanded.value = false
         loadOrdersForProcess(processID = process.id)
+    }
+
+    fun processPassword(password : String?){
+        onGotPassword?.invoke(password)
+        onGotPassword = null//dismiss the prompt
+    }
+
+    fun askForPassword(onGotPassword : (String?)->Unit){
+        this.onGotPassword = onGotPassword
     }
 
     fun login(username:String,password:String){
@@ -144,16 +156,19 @@ class ProductionTrackingViewModel : ViewModel() {
 //        }
 //    }
 
+
     fun loadOrdersForProcess(processID : Int){
         orders.value = listOf()
         // isLoading.value = true
         isPullRefreshing = true
 
+        var formatter = SimpleDateFormat("yyyy.MM.dd", Locale.ENGLISH)
+        var formattedDate =  formatter.format(Calendar.getInstance().time)
             viewModelScope.launch(Dispatchers.IO) {
 
                 KotlinDatabase.executeRawQuery<ProductionTrackingOrder>(
                     ProductionTrackingOrder,
-                    ProductionTrackingOrder.getListForProcess(processID), onSuccess = { list ->
+                    ProductionTrackingOrder.getListForProcess(processID,formattedDate), onSuccess = { list ->
                         viewModelScope.launch(Dispatchers.Main) {
 
                             orders.value = list

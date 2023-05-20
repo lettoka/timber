@@ -36,6 +36,7 @@ object KotlinDatabase {
         if (conn == null) { onError?.invoke(Exception("Sikertelen csatlakozás"));return}
         try {
             val st: Statement = conn.createStatement()
+            Log.w("lekerdezes:",q)
             val rs = st.executeQuery(q)
             val list: MutableList<T> = ArrayList()
             while (rs.next()) {

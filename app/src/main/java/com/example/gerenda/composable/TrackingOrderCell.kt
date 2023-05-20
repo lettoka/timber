@@ -1,5 +1,6 @@
 package com.example.gerenda.composable
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowRight
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,28 +24,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gerenda.extension.dpToSp
-import com.example.gerenda.model.ProductionTrackingOrder
-import com.example.gerenda.model.TrackingItem
+import com.example.gerenda.model.ProcessTracking.ProductionTrackingOrder
+import com.example.gerenda.model.ProcessTracking.TrackingItem
 import com.example.gerenda.viewmodel.LoadingState
 import com.example.gerenda.viewmodel.ProductionTrackingViewModel
 import com.example.gerenda.viewmodel.TrackingOrderViewModel
 
 @Composable
-fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderViewModel = viewModel(),pageViewModel : ProductionTrackingViewModel = viewModel()){
+fun TrackingOrderCell(order : ProductionTrackingOrder, viewModel: TrackingOrderViewModel = viewModel(), pageViewModel : ProductionTrackingViewModel = viewModel()){
     val isOpen = remember { mutableStateOf(false) }
     val items = remember{ mutableStateOf<List<TrackingItem>>(listOf()) }
     val loadingState = remember{ mutableStateOf(LoadingState.IDLE) }
     val arrowRotation = animateFloatAsState(targetValue = if (isOpen.value)90f else 0f)
+    val context = LocalContext.current
 
     fun expandClicked(){
         if (loadingState.value == LoadingState.LOADING){ return}
@@ -54,14 +52,24 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
             items.value = listOf()
         }else{
             loadingState.value = LoadingState.LOADING
-            pageViewModel.user.value?.id?.let {userID ->
-                viewModel.loadItems(order.id,userID, onError = {
+//            pageViewModel.user.value?.id?.let {userID ->
+//                viewModel.loadItems(order.id,userID, onError = {
+//                    items.value = listOf()
+//                    isOpen.value = false
+//                    loadingState.value = LoadingState.IDLE
+//                }, onSuccess = {
+//                    items.value = it
+//                    loadingState.value = LoadingState.LOADED
+//                })
+//            }
+            pageViewModel.selecteProcess.value?.let {process ->
+                viewModel.loadItemsForProcess(order.id, process.id, onError = {
                     items.value = listOf()
                     isOpen.value = false
                     loadingState.value = LoadingState.IDLE
                 }, onSuccess = {
                     items.value = it
-                    loadingState.value = LoadingState.LOADED
+                    loadingState.value = LoadingState.IDLE
                 })
             }
         }
@@ -128,15 +136,37 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
 
                                 }
                                 DoneButton(isDone = it.isDone, onClick = {onDone->
-                                    if (pageViewModel.user.value?.id == null){onDone();return@DoneButton }
-                                    pageViewModel.user.value?.id?.let { userID ->
-                                        viewModel.doneItem(order.id,userID,it, onSuccess = { newItems ->
-                                            items.value = newItems
-                                            onDone()
-                                        }, onError = {
-                                            onDone()
-                                        })
+                                    pageViewModel.askForPassword { passwordResult ->
+                                        passwordResult?.let {password ->
+                                            viewModel.doneItem(
+                                                order.id,
+                                                password = password,
+                                                it,
+                                                onSuccess = { newItems ->
+                                                    items.value = newItems
+                                                    onDone()
+                                                },
+                                                onError = { errorMessage ->
+                                                    Toast.makeText(
+                                                        context,
+                                                        errorMessage,
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                    onDone()
+                                                })
+                                            return@askForPassword
+                                        }
+                                        onDone()//the process was cancelled
                                     }
+//                                    if (pageViewModel.user.value?.id == null){onDone();return@DoneButton }
+//                                    pageViewModel.user.value?.id?.let { userID ->
+//                                        viewModel.doneItem(order.id,userID,it, onSuccess = { newItems ->
+//                                            items.value = newItems
+//                                            onDone()
+//                                        }, onError = {
+//                                            onDone()
+//                                        })
+//                                    }
                                 })
                             }
                         }
@@ -159,5 +189,5 @@ fun TrackingOrderCell(order : ProductionTrackingOrder,viewModel: TrackingOrderVi
 @Preview
 @Composable
 fun TrackingOrderCellPreview(){
-    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1,"nev"))
+    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1,"nev","2022.11.12"))
 }

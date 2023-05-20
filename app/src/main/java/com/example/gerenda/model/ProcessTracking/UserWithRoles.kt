@@ -2,6 +2,7 @@ package com.example.gerenda.model
 
 import com.example.gerenda.database.DatabaseTransformable
 import java.sql.ResultSet
+import java.time.format.DateTimeFormatter
 
 
 //select "termek"."ter_kod","termek"."ter_nev","jelszo"."jel_kod","jelszo"."felhaszn","jelszo"."nev","uzemi_jog"."uzemi_j" from "jelszo"
@@ -33,6 +34,7 @@ WHERE "jelszo"."felhaszn" = '$username' AND "jelszo"."jelszo_md5" = '$password' 
             """
         }
 
+
         fun getReloadQuery(userID: Int) : String{
             return """
                  select "termek"."ter_kod","termek"."ter_nev","jelszo"."jel_kod","jelszo"."felhaszn","jelszo"."nev","uzemi_jog"."uzemi_j" from "jelszo"
@@ -45,9 +47,9 @@ WHERE "jelszo"."jel_kod" = $userID AND "uzemi_jog"."uzemi_j" > 1
     }
 }
 
-fun List<UserRoleResponse>.userData() : User?{
+fun List<UserRoleResponse>.userData() : UserWithRoles?{
     this.firstOrNull()?.let {first ->
-        return User(first.userID,first.username,first.userDisplayName,this.map { UserRole(it.id,it.name,it.roleID) })
+        return UserWithRoles(first.userID,first.username,first.userDisplayName,this.map { UserRole(it.id,it.name,it.roleID) })
     }
     return null
 }
@@ -58,7 +60,27 @@ data class UserRole(
     val roleID : Int
 )
 
-data class User (
+data class  User(
+    val id : Int,
+    val name : String,
+    val displayName : String
+) {
+    companion object : DatabaseTransformable<User>{
+        override fun TransformData(set: ResultSet): User {
+            return User(set.getInt("jel_kod"),set.getString("felhaszn"),set.getString("nev"))
+        }
+        fun getUserQueryForpassword(password: String) :String{
+            return """
+                select "jelszo"."jel_kod","jelszo"."felhaszn","jelszo"."nev" from "jelszo" where "jelszo_md5" = '$password'
+            """
+        }
+
+
+
+    }
+}
+
+data class UserWithRoles (
     val id : Int,
     val name : String,
     val displayName : String,

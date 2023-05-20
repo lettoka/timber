@@ -27,16 +27,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gerenda.composable.LoginCard
+import com.example.gerenda.composable.PasswordCard
 import com.example.gerenda.composable.TrackingOrderCell
 import com.example.gerenda.extension.TimberBrown
 import com.example.gerenda.extension.dpToSp
 import com.example.gerenda.viewmodel.ProductionTrackingViewModel
 
-class ProductionTrackingActivity : AppCompatActivity() {
+class ProductionTrackingActivity : DatabaseActivity() {
+    override fun onDBConnSuccess() {
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -73,6 +79,10 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
 
         }
 
+        viewModel.onGotPassword?.let {
+            PasswordCard(onGotPassword = it)
+        }
+
         //PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         if (viewModel.isPullRefreshing){
             Box(contentAlignment = Alignment.Center, modifier = Modifier
@@ -88,11 +98,13 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
 @Composable
 fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel()){
     Column(horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = Modifier
             .clip(RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp))
             .background(Color.White)
             .fillMaxWidth()
             .padding(20.dp)) {
+        Text("Gyártáskövetés",fontSize = dpToSp(dp = 30.dp), fontWeight = FontWeight.Bold)
         Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = {
