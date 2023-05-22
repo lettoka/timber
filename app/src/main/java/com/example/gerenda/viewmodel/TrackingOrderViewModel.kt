@@ -27,7 +27,7 @@ class TrackingOrderViewModel : ViewModel(){
             }
             if (success.not()){ viewModelScope.launch(Dispatchers.Main){onError("Sikertelen művelet")}}
            // loadItems(orderID,userID, onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
-            loadItemsForProcess(orderID, processID = item.processID,onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
+            loadItemsForProcessGroup(orderID, processGroupID = item.processGroupID,onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
         }
     }
 
@@ -46,11 +46,11 @@ class TrackingOrderViewModel : ViewModel(){
         }
     }
 
-    fun loadItemsForProcess(orderID:String, processID:Int, onSuccess: (List<TrackingItem>)->Unit, onError:()->Unit){
+    fun loadItemsForProcessGroup(orderID:String, processGroupID:Int, onSuccess: (List<TrackingItem>)->Unit, onError:()->Unit){
         viewModelScope.launch(Dispatchers.IO) {
             KotlinDatabase.executeRawQuery(
                 TrackingItem,
-                TrackingItem.getQueryForProcess(orderID,processID), onError = {
+                TrackingItem.getQueryForProcessGroup(orderID,processGroupID), onError = {
                     onError()
                 }, onSuccess = {
                     viewModelScope.launch(Dispatchers.Main) {
@@ -59,6 +59,20 @@ class TrackingOrderViewModel : ViewModel(){
                 })
         }
     }
+
+//    fun loadItemsForProcess(orderID:String, processID:Int, onSuccess: (List<TrackingItem>)->Unit, onError:()->Unit){
+//        viewModelScope.launch(Dispatchers.IO) {
+//            KotlinDatabase.executeRawQuery(
+//                TrackingItem,
+//                TrackingItem.getQueryForProcess(orderID,processID), onError = {
+//                    onError()
+//                }, onSuccess = {
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                        onSuccess(it)
+//                    }
+//                })
+//        }
+//    }
 //    fun loadItems(orderID:String, userID : Int, onSuccess: (List<TrackingItem>)->Unit, onError:()->Unit){
 //        viewModelScope.launch(Dispatchers.IO) {
 //            KotlinDatabase.executeRawQuery(

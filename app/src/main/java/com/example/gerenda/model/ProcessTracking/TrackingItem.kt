@@ -13,6 +13,7 @@ data class TrackingItem(
     val trackingID : Int,//"uzemi"."uzemi_kod"
     val trackingNumber : Int,//"uzemi"."uzemi_sorsz"
     val processID : Int,
+    val processGroupID: Int,
     val processName : String,
     val amount : Double,
     val producID : Int,
@@ -21,7 +22,7 @@ data class TrackingItem(
 ){
   companion object : DatabaseTransformable<TrackingItem>{
       override fun TransformData(set: ResultSet): TrackingItem {
-          return TrackingItem(set.getInt("uzemi_kod"),set.getInt("uzemi_sorsz"),set.getInt("folyamat_ter_kod"),set.getString("folyamat_nev"),set.getDouble("uzemi_menny"),set.getInt("ter_kod"),set.getString("anyag_nev"),set.getString("uzemi_kesz") == "I")
+          return TrackingItem(set.getInt("uzemi_kod"),set.getInt("uzemi_sorsz"),set.getInt("folyamat_ter_kod"),set.getInt("folyamat_terulet_id"),set.getString("folyamat_nev"),set.getDouble("uzemi_menny"),set.getInt("ter_kod"),set.getString("anyag_nev"),set.getString("uzemi_kesz") == "I")
       }
 
       fun getUpdateQuery(item : TrackingItem) : String{
@@ -30,38 +31,45 @@ data class TrackingItem(
         """
       }
 
-      fun getQueryForProcess(orderID: String,processID: Int):String{
+      fun getQueryForProcessGroup(orderID: String,processGroupID: Int):String{
           return """
-              SELECT "uzemi"."uzemi_kod","uzemi"."uzemi_sorsz","arajanl_f"."ara_szam","uzemi"."uzemi_menny","uzemi"."ter_kod" "folyamat_ter_kod","folyamat"."ter_nev" "folyamat_nev","arajanl_t"."ter_kod","anyag"."ter_nev" "anyag_nev","uzemi"."uzemi_kesz"
+              SELECT "uzemi"."uzemi_kod","uzemi"."uzemi_sorsz","arajanl_f"."ara_szam","uzemi"."uzemi_menny","uzemi"."ter_kod" "folyamat_ter_kod","folyamat"."uzemt_kod" "folyamat_terulet_id","folyamat"."ter_nev" "folyamat_nev","arajanl_t"."ter_kod","anyag"."ter_nev" "anyag_nev","uzemi"."uzemi_kesz"
 from "arajanl_f"
 LEFT OUTER JOIN "uzemi" on "arajanl_f"."uzemi_kod" = "uzemi"."uzemi_kod"
 LEFT OUTER JOIN "termek" "folyamat" on "uzemi"."ter_kod" = "folyamat"."ter_kod"
 LEFT OUTER JOIN "arajanl_t" on ("arajanl_f"."ara_szam" = "arajanl_t"."ara_szam" AND "uzemi"."uzemi_sorsz" = "arajanl_t"."uzemi_sorsz" )
 LEFT OUTER JOIN "termek" as "anyag" on ("arajanl_t"."ter_kod" = "anyag"."ter_kod")
 where    ("arajanl_f"."ara_szam" = '$orderID'
-AND "folyamat"."ter_kod" = $processID )
+AND "folyamat"."uzemt_kod" = $processGroupID )
           """
       }
 
-
-      fun getQuery(orderID : String,userID:Int) : String{
-//         return """
-//
-//SELECT "uzemi"."uzemi_menny","uzemi"."ter_kod","termek"."ter_nev"
-//from "uzemi"
-//LEFT OUTER JOIN "termek" on "uzemi"."ter_kod" = "termek"."ter_kod"
-//where "uzemi"."uzemi_kod" = $trackingID
+//      fun getQueryForProcess(orderID: String,processID: Int):String{
+//          return """
+//              SELECT "uzemi"."uzemi_kod","uzemi"."uzemi_sorsz","arajanl_f"."ara_szam","uzemi"."uzemi_menny","uzemi"."ter_kod" "folyamat_ter_kod","folyamat"."ter_nev" "folyamat_nev","arajanl_t"."ter_kod","anyag"."ter_nev" "anyag_nev","uzemi"."uzemi_kesz"
+//from "arajanl_f"
+//LEFT OUTER JOIN "uzemi" on "arajanl_f"."uzemi_kod" = "uzemi"."uzemi_kod"
+//LEFT OUTER JOIN "termek" "folyamat" on "uzemi"."ter_kod" = "folyamat"."ter_kod"
+//LEFT OUTER JOIN "arajanl_t" on ("arajanl_f"."ara_szam" = "arajanl_t"."ara_szam" AND "uzemi"."uzemi_sorsz" = "arajanl_t"."uzemi_sorsz" )
+//LEFT OUTER JOIN "termek" as "anyag" on ("arajanl_t"."ter_kod" = "anyag"."ter_kod")
+//where    ("arajanl_f"."ara_szam" = '$orderID'
+//AND "folyamat"."ter_kod" = $processID )
 //          """
-          return """
-              SELECT "uzemi"."uzemi_kod","uzemi"."uzemi_sorsz","arajanl_f"."ara_szam","uzemi"."uzemi_menny","uzemi"."ter_kod" "folyamat_ter_kod","folyamat"."ter_nev" "folyamat_nev","arajanl_t"."ter_kod","anyag"."ter_nev" "anyag_nev","uzemi"."uzemi_kesz"
-from "arajanl_f"
-LEFT OUTER JOIN "uzemi" on "arajanl_f"."uzemi_kod" = "uzemi"."uzemi_kod"
-LEFT OUTER JOIN "termek" "folyamat" on "uzemi"."ter_kod" = "folyamat"."ter_kod"
-LEFT OUTER JOIN "arajanl_t" on ("arajanl_f"."ara_szam" = "arajanl_t"."ara_szam" AND "uzemi"."uzemi_sorsz" = "arajanl_t"."uzemi_sorsz" )
-LEFT OUTER JOIN "termek" as "anyag" on ("arajanl_t"."ter_kod" = "anyag"."ter_kod")
-where    ("arajanl_f"."ara_szam" = '$orderID'
-AND ((SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi_jog" where "jel_kod" = $userID AND "uzemi_jog"."ter_kod" = "uzemi"."ter_kod") > 1))
-          """
-      }
+//      }
+
+
+//      fun getQuery(orderID : String,userID:Int) : String{
+//
+//          return """
+//              SELECT "uzemi"."uzemi_kod","uzemi"."uzemi_sorsz","arajanl_f"."ara_szam","uzemi"."uzemi_menny","uzemi"."ter_kod" "folyamat_ter_kod","folyamat"."ter_nev" "folyamat_nev","arajanl_t"."ter_kod","anyag"."ter_nev" "anyag_nev","uzemi"."uzemi_kesz"
+//from "arajanl_f"
+//LEFT OUTER JOIN "uzemi" on "arajanl_f"."uzemi_kod" = "uzemi"."uzemi_kod"
+//LEFT OUTER JOIN "termek" "folyamat" on "uzemi"."ter_kod" = "folyamat"."ter_kod"
+//LEFT OUTER JOIN "arajanl_t" on ("arajanl_f"."ara_szam" = "arajanl_t"."ara_szam" AND "uzemi"."uzemi_sorsz" = "arajanl_t"."uzemi_sorsz" )
+//LEFT OUTER JOIN "termek" as "anyag" on ("arajanl_t"."ter_kod" = "anyag"."ter_kod")
+//where    ("arajanl_f"."ara_szam" = '$orderID'
+//AND ((SELECT DISTINCT "uzemi_jog"."uzemi_j" from "uzemi_jog" where "jel_kod" = $userID AND "uzemi_jog"."ter_kod" = "uzemi"."ter_kod") > 1))
+//          """
+//      }
   }
 }

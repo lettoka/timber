@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gerenda.composable.LoginCard
 import com.example.gerenda.composable.PasswordCard
+import com.example.gerenda.composable.TimberButton
 import com.example.gerenda.composable.TrackingOrderCell
 import com.example.gerenda.extension.TimberBrown
 import com.example.gerenda.extension.dpToSp
@@ -65,6 +66,7 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
     ) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.fillMaxSize()) {
        ProductTrackingHeader()
+
         Column(verticalArrangement = Arrangement.spacedBy(10.dp),modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 10.dp)) {
@@ -79,11 +81,22 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
 
         }
 
+        if (viewModel.orders.value.isEmpty() && viewModel.selectedProcessGroup.value != null && !viewModel.isPullRefreshing){
+            Column(verticalArrangement = Arrangement.spacedBy(30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Nincs elérhető megrendelés.", fontSize = dpToSp(dp = 30.dp))
+                TimberButton(text = "Frissítés") {
+                    viewModel.pullRefresh()
+                }
+            }
+
+
+        }
+
         viewModel.onGotPassword?.let {
             PasswordCard(onGotPassword = it)
         }
 
-        //PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+        PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         if (viewModel.isPullRefreshing){
             Box(contentAlignment = Alignment.Center, modifier = Modifier
                 .background(Color.White.copy(alpha = 0.2f))
@@ -108,7 +121,7 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
         Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = {
-                viewModel.dropDownExpanded.value = true;viewModel.loadProcesses()
+                viewModel.dropDownExpanded.value = true;viewModel.loadProcessGroups()
             })
             .background(
                 Color.TimberBrown.copy(alpha = 0.2f),
@@ -116,7 +129,7 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
             )
             .padding(all = 10.dp)
         ){
-            Text(viewModel.selecteProcess.value?.name ?: "Válasszon üzemi folyamatot",fontSize = dpToSp(dp = 30.dp))
+            Text(viewModel.selectedProcessGroup.value?.name ?: "Válasszon üzemi területet",fontSize = dpToSp(dp = 30.dp))
                                 Icon(
                         Icons.Filled.ArrowDropDown,
                         tint = Color.Black,
@@ -127,9 +140,15 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
                     )
         }
 
+        Row(horizontalArrangement = Arrangement.spacedBy(20.dp),modifier = Modifier.verticalScroll(rememberScrollState())) {
+            viewModel.selectedProcessGroup.value?.processNames?.forEach {
+                Text(text = it, fontSize = dpToSp(dp = 26.dp))
+            }
+        }
+
         DropdownMenu(
             expanded = viewModel.dropDownExpanded.value,
-            onDismissRequest = { viewModel.dropDownExpanded.value = false;viewModel.processes.value = listOf() },
+            onDismissRequest = { viewModel.dropDownExpanded.value = false;viewModel.processGroups.value = listOf() },
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
@@ -149,15 +168,17 @@ fun ProductTrackingHeader(viewModel : ProductionTrackingViewModel = viewModel())
                     CircularProgressIndicator()
                 }
             }
-            viewModel.processes.value.forEach { process ->
+            viewModel.processGroups.value.forEach { processGroup ->
                 DropdownMenuItem(onClick = {
-                    viewModel.selectProcess(process)
+                    viewModel.selectProcess(processGroup)
                 }, text = {
 
-                    Text(text = process.name,fontSize = dpToSp(dp = 30.dp))
+                    Text(text = processGroup.name,fontSize = dpToSp(dp = 30.dp))
                 })
             }
         }
+
+
 //        viewModel.user.value?.let { user ->
 //            Row(horizontalArrangement = Arrangement.SpaceBetween,modifier = Modifier.fillMaxWidth()) {
 //                Icon(

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.gerenda.database.KotlinDatabase
 import com.example.gerenda.extension.md5
 import com.example.gerenda.model.*
+import com.example.gerenda.model.ProcessTracking.ProcessGroup
 import com.example.gerenda.model.ProcessTracking.ProductionTrackingOrder
 import com.example.gerenda.model.userData
 import kotlinx.coroutines.*
@@ -17,8 +18,8 @@ import java.util.*
 class ProductionTrackingViewModel : ViewModel() {
     val user = mutableStateOf<UserWithRoles?>(null)
     val orders = mutableStateOf<List<ProductionTrackingOrder>>(listOf())
-    val processes = mutableStateOf<List<ProductProcess>>(listOf())
-    val selecteProcess = mutableStateOf<ProductProcess?>(null)
+    val processGroups = mutableStateOf<List<ProcessGroup>>(listOf())
+    val selectedProcessGroup = mutableStateOf<ProcessGroup?>(null)
    // val isLoading = mutableStateOf(false)
     var isPullRefreshing by mutableStateOf(false)
     val loginShown = mutableStateOf(false)
@@ -33,17 +34,17 @@ class ProductionTrackingViewModel : ViewModel() {
     }
 
 
-    fun loadProcesses(){
+    fun loadProcessGroups(){
         isDropDownRefreshing = true
-        processes.value = listOf()
+        processGroups.value = listOf()
         viewModelScope.launch(Dispatchers.IO) {
 
-            KotlinDatabase.executeRawQuery<ProductProcess>(
-                ProductProcess,
-                ProductProcess.getListQuery(), mustReturnOneRow = true
+            KotlinDatabase.executeRawQuery<ProcessGroup>(
+                ProcessGroup,
+                ProcessGroup.getListQuery(), mustReturnOneRow = true
                 , onSuccess =  { list ->
                     viewModelScope.launch(Dispatchers.Main) {
-                        processes.value = list
+                        processGroups.value = list
                         dropDownExpanded.value = true
                         isDropDownRefreshing = false
                     }
@@ -60,10 +61,10 @@ class ProductionTrackingViewModel : ViewModel() {
         }
     }
 
-    fun selectProcess(process: ProductProcess){
-        selecteProcess.value = process
+    fun selectProcess(processGroup: ProcessGroup){
+        selectedProcessGroup.value = processGroup
         dropDownExpanded.value = false
-        loadOrdersForProcess(processID = process.id)
+        loadOrdersForProcess(processGroupID = processGroup.id)
     }
 
     fun processPassword(password : String?){
@@ -75,35 +76,39 @@ class ProductionTrackingViewModel : ViewModel() {
         this.onGotPassword = onGotPassword
     }
 
-    fun login(username:String,password:String){
-        //isLoading.value = true
-        loginShown.value = false
-        viewModelScope.launch(Dispatchers.IO) {
-
-            KotlinDatabase.executeRawQuery<UserRoleResponse>(
-                UserRoleResponse,
-                UserRoleResponse.getQuery(username,password.uppercase().md5()), mustReturnOneRow = true
-                , onSuccess =  { list ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        user.value = list.userData()
-                        loadOrders()
-                    }
-
-                }, onError = {
-                    viewModelScope.launch(Dispatchers.Main) {
-                       // isLoading.value = false
-                        loginShown.value = true
-                    }
-                })
-
-        }
-    }
+//    fun login(username:String,password:String){
+//        //isLoading.value = true
+//        loginShown.value = false
+//        viewModelScope.launch(Dispatchers.IO) {
+//
+//            KotlinDatabase.executeRawQuery<UserRoleResponse>(
+//                UserRoleResponse,
+//                UserRoleResponse.getQuery(username,password.uppercase().md5()), mustReturnOneRow = true
+//                , onSuccess =  { list ->
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                        user.value = list.userData()
+//                        loadOrders()
+//                    }
+//
+//                }, onError = {
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                       // isLoading.value = false
+//                        loginShown.value = true
+//                    }
+//                })
+//
+//        }
+//    }
     fun pullRefresh(){
         viewModelScope.launch(Dispatchers.IO) {
             // async{
-            isPullRefreshing = true
 
-            reloadUser()
+            selectedProcessGroup.value?.let {
+                isPullRefreshing = true
+                loadOrdersForProcess(it.id)
+
+            }
+
 
 //
            // isPullRefreshing = false
@@ -112,26 +117,26 @@ class ProductionTrackingViewModel : ViewModel() {
     }
 
 
-     fun reloadUser(){
-        user.value?.let {
-            KotlinDatabase.executeRawQuery<UserRoleResponse>(
-                UserRoleResponse,
-                UserRoleResponse.getReloadQuery(it.id), mustReturnOneRow = true
-                , onSuccess =  { list ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        user.value = list.userData()
-                        loadOrders()
-                    }
-
-                }, onError = {
-                    viewModelScope.launch(Dispatchers.Main) {
-                       // isLoading.value = false
-                        isPullRefreshing = false
-                        loginShown.value = true
-                    }
-                })
-        }
-    }
+//     fun reloadUser(){
+//        user.value?.let {
+//            KotlinDatabase.executeRawQuery<UserRoleResponse>(
+//                UserRoleResponse,
+//                UserRoleResponse.getReloadQuery(it.id), mustReturnOneRow = true
+//                , onSuccess =  { list ->
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                        user.value = list.userData()
+//                        loadOrders()
+//                    }
+//
+//                }, onError = {
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                       // isLoading.value = false
+//                        isPullRefreshing = false
+//                        loginShown.value = true
+//                    }
+//                })
+//        }
+//    }
 
 //    fun reloadUser(){
 //        isLoading.value = true
@@ -157,18 +162,18 @@ class ProductionTrackingViewModel : ViewModel() {
 //    }
 
 
-    fun loadOrdersForProcess(processID : Int){
+    fun loadOrdersForProcess(processGroupID : Int){
         orders.value = listOf()
         // isLoading.value = true
         isPullRefreshing = true
 
-        var formatter = SimpleDateFormat("yyyy.MM.dd", Locale.ENGLISH)
+        var formatter = SimpleDateFormat("yyyy.MM.dd.", Locale.ENGLISH)
         var formattedDate =  formatter.format(Calendar.getInstance().time)
             viewModelScope.launch(Dispatchers.IO) {
 
                 KotlinDatabase.executeRawQuery<ProductionTrackingOrder>(
                     ProductionTrackingOrder,
-                    ProductionTrackingOrder.getListForProcess(processID,formattedDate), onSuccess = { list ->
+                    ProductionTrackingOrder.getListForProcessGroup(processGroupID,formattedDate), onSuccess = { list ->
                         viewModelScope.launch(Dispatchers.Main) {
 
                             orders.value = list
@@ -186,32 +191,32 @@ class ProductionTrackingViewModel : ViewModel() {
 
     }
 
-    fun loadOrders(){
-        if (user.value == null){ orders.value = listOf() ;return}
-        orders.value = listOf()
-       // isLoading.value = true
-        isPullRefreshing = true
-        user.value?.id?.let {userID->
-            viewModelScope.launch(Dispatchers.IO) {
-
-                KotlinDatabase.executeRawQuery<ProductionTrackingOrder>(
-                    ProductionTrackingOrder,
-                    ProductionTrackingOrder.getQuery(userID), onSuccess = { list ->
-                        viewModelScope.launch(Dispatchers.Main) {
-
-                            orders.value = list
-                            //isLoading.value = false
-                            isPullRefreshing = false
-                        }
-                    }, onError = {
-                        viewModelScope.launch(Dispatchers.Main) {
-                           // isLoading.value = false
-                            isPullRefreshing = false
-                        }
-                    })
-
-            }
-        }
-    }
+//    fun loadOrders(){
+//        if (user.value == null){ orders.value = listOf() ;return}
+//        orders.value = listOf()
+//       // isLoading.value = true
+//        isPullRefreshing = true
+//        user.value?.id?.let {userID->
+//            viewModelScope.launch(Dispatchers.IO) {
+//
+//                KotlinDatabase.executeRawQuery<ProductionTrackingOrder>(
+//                    ProductionTrackingOrder,
+//                    ProductionTrackingOrder.getQuery(userID), onSuccess = { list ->
+//                        viewModelScope.launch(Dispatchers.Main) {
+//
+//                            orders.value = list
+//                            //isLoading.value = false
+//                            isPullRefreshing = false
+//                        }
+//                    }, onError = {
+//                        viewModelScope.launch(Dispatchers.Main) {
+//                           // isLoading.value = false
+//                            isPullRefreshing = false
+//                        }
+//                    })
+//
+//            }
+//        }
+//    }
 
 }

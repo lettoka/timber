@@ -38,7 +38,7 @@ fun LoginCard(viewModel : ProductionTrackingViewModel = viewModel()){
         TextField(value = password.value, onValueChange = {password.value = it},label = { Text(text = "Jelszó") })
         
         TimberButton(text = "Bejelentkezés") {
-            viewModel.login(username = username.value,password=password.value)
+            //viewModel.login(username = username.value,password=password.value)
         }
     }
 }

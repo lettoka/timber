@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -62,8 +63,8 @@ fun TrackingOrderCell(order : ProductionTrackingOrder, viewModel: TrackingOrderV
 //                    loadingState.value = LoadingState.LOADED
 //                })
 //            }
-            pageViewModel.selecteProcess.value?.let {process ->
-                viewModel.loadItemsForProcess(order.id, process.id, onError = {
+            pageViewModel.selectedProcessGroup.value?.let {processGroup ->
+                viewModel.loadItemsForProcessGroup(order.id, processGroupID = processGroup.id, onError = {
                     items.value = listOf()
                     isOpen.value = false
                     loadingState.value = LoadingState.IDLE
@@ -108,8 +109,28 @@ fun TrackingOrderCell(order : ProductionTrackingOrder, viewModel: TrackingOrderV
 
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Column() {
-                    
+                Column(verticalArrangement = Arrangement.Center) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                                       Icon(
+                    Icons.Rounded.AccountCircle,
+
+                    contentDescription = "user",
+                    modifier = Modifier.size(30.dp)
+                )
+                        Text(text = order.creatorName, fontSize = dpToSp(dp = 26.dp))
+
+                    }
+
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                            Text(text = "Felelős:", fontSize = dpToSp(dp = 26.dp))
+                            Text(text = order.supervisorName, fontSize = dpToSp(dp = 26.dp))
+
+                        }
+                    }
                 //items.value.groupingBy { it.processName }
                     items.value.groupBy { it.processName }.forEach{group ->
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
@@ -189,5 +210,7 @@ fun TrackingOrderCell(order : ProductionTrackingOrder, viewModel: TrackingOrderV
 @Preview
 @Composable
 fun TrackingOrderCellPreview(){
-    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1,"nev","2022.11.12"))
+    TrackingOrderCell(ProductionTrackingOrder("tesztorder",1,"nev","felhasznalo","2022.11.12","Felelosnev"))
 }
+
+
