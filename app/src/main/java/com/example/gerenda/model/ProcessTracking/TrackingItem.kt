@@ -25,9 +25,10 @@ data class TrackingItem(
           return TrackingItem(set.getInt("uzemi_kod"),set.getInt("uzemi_sorsz"),set.getInt("folyamat_ter_kod"),set.getInt("folyamat_terulet_id"),set.getString("folyamat_nev"),set.getDouble("uzemi_menny"),set.getInt("ter_kod"),set.getString("anyag_nev"),set.getString("uzemi_kesz") == "I")
       }
 
-      fun getUpdateQuery(item : TrackingItem) : String{
+      fun getUpdateQuery(item : TrackingItem,undo:Boolean) : String{
+
         return """
-            UPDATE "uzemi" SET "uzemi_kesz" = 'I' WHERE "uzemi_kod" = ${item.trackingID} AND "uzemi_sorsz" = ${item.trackingNumber} AND "ter_kod" = ${item.processID}
+            UPDATE "uzemi" SET "uzemi_kesz" = ${if(undo) "'N'" else "'I'"} WHERE "uzemi_kod" = ${item.trackingID} AND "uzemi_sorsz" = ${item.trackingNumber} AND "ter_kod" = ${item.processID}
         """
       }
 

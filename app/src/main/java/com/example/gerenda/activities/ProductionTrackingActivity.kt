@@ -93,7 +93,7 @@ fun ProductionTracking(viewModel : ProductionTrackingViewModel = viewModel()) {
         }
 
         viewModel.onGotPassword?.let {
-            PasswordCard(onGotPassword = it)
+            PasswordCard()
         }
 
         PullRefreshIndicator(viewModel.isPullRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))

@@ -25,7 +25,7 @@ class ProductionTrackingViewModel : ViewModel() {
     val loginShown = mutableStateOf(false)
     var dropDownExpanded = mutableStateOf(false)
     var isDropDownRefreshing by mutableStateOf(false)
-    var onGotPassword by mutableStateOf<((String?)->Unit)?>(null)
+    var onGotPassword by mutableStateOf<Pair<Boolean,((String?)->Unit)>?>(null)
 
 
     fun logout(){
@@ -68,12 +68,12 @@ class ProductionTrackingViewModel : ViewModel() {
     }
 
     fun processPassword(password : String?){
-        onGotPassword?.invoke(password)
+        onGotPassword?.second?.invoke(password)
         onGotPassword = null//dismiss the prompt
     }
 
-    fun askForPassword(onGotPassword : (String?)->Unit){
-        this.onGotPassword = onGotPassword
+    fun askForPassword(undo:Boolean,onGotPassword : (String?)->Unit){
+        this.onGotPassword = Pair(undo,onGotPassword)
     }
 
 //    fun login(username:String,password:String){

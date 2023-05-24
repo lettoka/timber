@@ -1,5 +1,6 @@
 package com.example.gerenda.composable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -18,12 +19,10 @@ import com.example.gerenda.extension.TimberBrown
 import com.example.gerenda.extension.dpToSp
 
 @Composable
-fun DoneButton(isDone : Boolean,onClick:(onDone:()->Unit)->Unit){
+fun DoneButton(isDone : Boolean,onClick:(undo:Boolean,onDone:()->Unit)->Unit){
     val isLoading = remember{ mutableStateOf(false) }
 
-    fun doneClicked(){
-        isLoading.value = true
-    }
+
     Box {
         if (isLoading.value){
             CircularProgressIndicator()
@@ -33,13 +32,16 @@ fun DoneButton(isDone : Boolean,onClick:(onDone:()->Unit)->Unit){
                     Icons.Filled.CheckCircle,
 
                     contentDescription = "user",
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(40.dp).clickable {
+                        isLoading.value = true
+                        onClick(true){isLoading.value = false}
+                    },
                     tint = Color.TimberBrown
                 )
             }else{
                 TimberButton(text = "Kész", fontSize = dpToSp(dp = 20.dp)) {
                     isLoading.value = true
-                    onClick { isLoading.value = false }
+                    onClick(false){ isLoading.value = false }
                 }
             }
         }

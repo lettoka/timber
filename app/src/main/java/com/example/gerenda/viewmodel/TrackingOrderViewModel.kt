@@ -20,10 +20,10 @@ enum class LoadingState{
 
 class TrackingOrderViewModel : ViewModel(){
 
-    fun doneItem(orderID:String, userID:Int, item: TrackingItem, onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
+    fun updateProcessingItem(undo: Boolean,orderID:String, userID:Int, item: TrackingItem, onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
         viewModelScope.launch(Dispatchers.IO) {
             val success = withContext(Dispatchers.IO) {
-                return@withContext KotlinDatabase.executeUpdate(query = TrackingItem.getUpdateQuery(item))
+                return@withContext KotlinDatabase.executeUpdate(query = TrackingItem.getUpdateQuery(item,undo))
             }
             if (success.not()){ viewModelScope.launch(Dispatchers.Main){onError("Sikertelen művelet")}}
            // loadItems(orderID,userID, onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
@@ -31,20 +31,63 @@ class TrackingOrderViewModel : ViewModel(){
         }
     }
 
-    fun doneItem(orderID: String,password:String,item: TrackingItem,onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
+//    fun doneItem(orderID: String,password:String,item: TrackingItem,onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
+//        viewModelScope.launch(Dispatchers.IO) {
+//
+//                KotlinDatabase.executeRawQuery(User,User.getUserQueryForpassword(password.uppercase().md5()), mustReturnOneRow = true, onSuccess = {
+//                    it.firstOrNull()?.let {user ->
+//                        doneItem(orderID,user.id,item, onSuccess = onSuccess, onError = onError)
+//                    }
+//                }, onError = {
+//                    viewModelScope.launch(Dispatchers.Main){
+//                    onError("Nem található felhasználó")
+//                    }
+//                })
+//        }
+//    }
+
+    fun checkPassword(undo:Boolean = false,orderID: String,password:String,item: TrackingItem,onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
         viewModelScope.launch(Dispatchers.IO) {
 
-                KotlinDatabase.executeRawQuery(User,User.getUserQueryForpassword(password.uppercase().md5()), mustReturnOneRow = true, onSuccess = {
-                    it.firstOrNull()?.let {user ->
-                        doneItem(orderID,user.id,item, onSuccess = onSuccess, onError = onError)
-                    }
-                }, onError = {
-                    viewModelScope.launch(Dispatchers.Main){
+            KotlinDatabase.executeRawQuery(User,User.getUserQueryForpassword(password.uppercase().md5()), mustReturnOneRow = true, onSuccess = {
+                it.firstOrNull()?.let {user ->
+                    updateProcessingItem(undo,orderID,user.id,item, onSuccess = onSuccess, onError = onError)
+
+                }
+            }, onError = {
+                viewModelScope.launch(Dispatchers.Main){
                     onError("Nem található felhasználó")
-                    }
-                })
+                }
+            })
         }
     }
+
+
+//    fun undoItem(orderID:String, userID:Int, item: TrackingItem, onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val success = withContext(Dispatchers.IO) {
+//                return@withContext KotlinDatabase.executeUpdate(query = TrackingItem.getUpdateQuery(item))
+//            }
+//            if (success.not()){ viewModelScope.launch(Dispatchers.Main){onError("Sikertelen művelet")}}
+//            // loadItems(orderID,userID, onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
+//            loadItemsForProcessGroup(orderID, processGroupID = item.processGroupID,onSuccess = {onSuccess(it)}, onError = {onError("A rendelések újratöltése sikertelen")})
+//        }
+//    }
+//
+//    fun undoItem(orderID: String,password:String,item: TrackingItem,onSuccess: (List<TrackingItem>) -> Unit, onError: (String) -> Unit){
+//        viewModelScope.launch(Dispatchers.IO) {
+//
+//            KotlinDatabase.executeRawQuery(User,User.getUserQueryForpassword(password.uppercase().md5()), mustReturnOneRow = true, onSuccess = {
+//                it.firstOrNull()?.let {user ->
+//                    undoItem(orderID,user.id,item, onSuccess = onSuccess, onError = onError)
+//                }
+//            }, onError = {
+//                viewModelScope.launch(Dispatchers.Main){
+//                    onError("Nem található felhasználó")
+//                }
+//            })
+//        }
+//    }
 
     fun loadItemsForProcessGroup(orderID:String, processGroupID:Int, onSuccess: (List<TrackingItem>)->Unit, onError:()->Unit){
         viewModelScope.launch(Dispatchers.IO) {

@@ -45,7 +45,7 @@ fun LoginCard(viewModel : ProductionTrackingViewModel = viewModel()){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordCard(viewModel : ProductionTrackingViewModel = viewModel(),onGotPassword : (String)->Unit){
+fun PasswordCard(viewModel : ProductionTrackingViewModel = viewModel()){
     val password = remember{ mutableStateOf("") }
     BackHandler() {
         viewModel.processPassword(null)
@@ -68,7 +68,7 @@ fun PasswordCard(viewModel : ProductionTrackingViewModel = viewModel(),onGotPass
         Text("Adja meg a jelszavát", fontSize = dpToSp(dp = 40.dp))
         TextField(value = password.value, onValueChange = {password.value = it},label = { Text(text = "Jelszó") })
 
-        TimberButton(text = "Kész") {
+        TimberButton(text =if (viewModel.onGotPassword?.first == true) "Visszavonás" else "Kész") {
             viewModel.processPassword(password.value)
         }
     }
